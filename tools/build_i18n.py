@@ -22,6 +22,35 @@ CJK = re.compile(r'[㐀-鿿　-〿＀-￯]')
 
 # 程式裡刻意拆開呼叫 t() 的字串、以及後來補的，抽取時抓不到，在這裡人工補
 MANUAL = {
+    # 2026-10-06：多場頁版面重排（場次置頂、設定與教學收合、每格下一步提示）
+    '更改': 'Change',
+    '每一場照三步做': 'Three steps for each meeting',
+    '按「選擇這場的分頁」': 'Select "Select a tab for this meeting"',
+    '選這場會議的分頁': "Pick this meeting's tab",
+    '等檢查通過': 'Wait for the check to pass',
+    '約 7 秒，變成「準備好了」': 'About 7 seconds, until it says "Ready"',
+    '按「開始錄這一場」': 'Select "Start this meeting"',
+    '會議開始時再按就好': 'Do it when the meeting starts',
+    '第一次用？看教學': 'First time? Read the guide',
+    '一次錄四場的完整步驟、分享視窗怎麼選、最容易出錯的四件事': 'Full steps for recording four meetings, how to use the share window, and the four most common mistakes',
+    '展開': 'Show',
+    '四場一起從喇叭放，你自己也聽不清楚。': "With four meetings playing through the speakers, you won't be able to hear any of them clearly.",
+    '在上方的「共用設定」（按一下展開）。選過一次就記住了。': 'In "Shared settings" above (select it to expand). It is remembered after the first time.',
+    '每一格按「開始錄這一場」': 'Select "Start this meeting" in each slot',
+    '四格都「準備好了」時，下面也會出現「準備好的 4 場一起開始」，可以一次全開。': 'When all four slots say "Ready", a button to start all 4 ready meetings also appears below, so you can start them at once.',
+    '存檔資料夾：尚未選擇（錄完要一個個按下載）': 'Save folder: not chosen (you will have to download each file)',
+    '錄影像＋聲音': 'Video + audio',
+    '只錄聲音': 'Audio only',
+    '沒聲音不會自動停止': 'Does not stop on silence',
+    '下一步：按「選擇這場的分頁」，選這場會議的分頁。選好、檢查通過之後，「開始錄這一場」就能按。': 'Next: select "Select a tab for this meeting" and pick the meeting\'s tab. Once it is chosen and the check passes, "Start this meeting" becomes available.',
+    '請在瀏覽器跳出的分享視窗裡，點這場會議的分頁，再按「分享」。': 'In the share window your browser opened, click this meeting\'s tab, then select "Share".',
+    '檢查中，約 7 秒…': 'Checking, about 7 seconds…',
+    '還不能開始：看下面打 ✕ 的項目，照提示修好後按「重新選擇」。': 'Can\'t start yet: fix the items marked ✕ below as suggested, then select "Choose again".',
+    '準備好了。會議開始時按「開始錄這一場」。': 'Ready. When the meeting starts, select "Start this meeting".',
+    '錄製中。要結束就按「停止這一場」；會議分頁關掉也會自動停止並存檔。': 'Recording. To finish, select "Stop this meeting". Closing the meeting tab also stops and saves automatically.',
+    '清除這些暫存': 'Clear these temporary copies',
+    '只刪掉「已匯出過」的暫存副本。請先確認資料夾裡的檔案可以正常播放。': 'Only temporary copies that were already exported will be deleted. First check that the files in your folder play correctly.',
+    '這個瀏覽器': 'This browser',
     '示意圖・瀏覽器會跳出這個視窗，這裡不能按': "Illustration: your browser shows this window. Nothing here is clickable",
     # 2026-10-02：瀏覽器支援說明（compat.js）
     '這個瀏覽器無法錄影（見最上方說明）': "This browser can't record (see the note at the top)",
@@ -144,6 +173,10 @@ MANUAL = {
 
 # 執行時才組出來、帶變數的句子（抽取後還沒進 en.json 的）
 MANUAL_PATTERNS = [
+    ['存檔資料夾：{1}', 'Save folder: {1}'],
+    ['畫質：{1}', 'Quality: {1}'],
+    ['{1} 分鐘沒聲音自動停止', 'Stops after {1} min of silence'],
+    ['瀏覽器暫存裡還有 {1} 個已經匯出過的錄影副本（共 {2}）。確認資料夾裡的檔案能播之後可以清掉。', 'Browser storage still holds {1} recordings that were already exported ({2} total). Once you have checked that the files in your folder play, you can clear them.'],
     ['{1} 缺少錄影需要的功能', '{1} is missing features needed for recording'],
     ['{1} 錄不到會議的聲音', "{1} can't record meeting audio"],
     ['連續 {1} 分鐘沒有會議聲音，判定會議已結束，自動停止並存檔', 'No meeting sound for {1} minutes. Treating the meeting as ended and stopping and saving automatically'],

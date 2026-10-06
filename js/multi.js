@@ -149,8 +149,28 @@ function loadPrefs() {
   } catch (e) {}
 }
 
+/** 共用設定收合時顯示的一行摘要：沒選資料夾要看得出來 */
+function renderSetupSummary() {
+  const box = $('setupSummary');
+  if (!box) return;
+  const p = prefs();
+  const q = M.QUALITY[p.quality];
+  const parts = [];
+  const dir = st.dirHandle ? st.dirHandle.name : null;
+  const dirSpan = document.createElement('span');
+  dirSpan.className = dir ? 'ok' : 'warn';
+  dirSpan.textContent = dir ? `存檔資料夾：${dir}` : '存檔資料夾：尚未選擇（錄完要一個個按下載）';
+  parts.push(dirSpan);
+  for (const t of [`畫質：${q ? q.label.split('（')[0] : p.quality}`, p.optVideo ? '錄影像＋聲音' : '只錄聲音',
+    p.autoQuiet && !el.optAutoQuiet.disabled ? `${p.quietMin} 分鐘沒聲音自動停止` : '沒聲音不會自動停止']) {
+    const sp = document.createElement('span'); sp.textContent = t; parts.push(sp);
+  }
+  box.replaceChildren(...parts);
+}
+
 /** 容量預算：多場最容易撞到的就是這個，所以放在設定下面一直顯示 */
 async function renderBudget() {
+  renderSetupSummary();
   const p = prefs();
   const q = M.QUALITY[p.quality];
   const perSlotBps = (p.optVideo ? q.videoBitsPerSecond : 0) + 96000;
@@ -184,6 +204,7 @@ async function restoreDir() {
 }
 function showDirReady(name) {
   el.dirLabel.textContent = name + '（已記住）';
+  setTimeout(renderSetupSummary, 0);
   el.btnUseSaved.hidden = true;
   el.btnPickDir.textContent = '換一個資料夾';
 }
@@ -277,10 +298,11 @@ function buildSlotCard(slot) {
     </div>
     <div class="row sc-actions">
       <button type="button" class="btn sm sc-pick">選擇這場的分頁</button>
-      <button type="button" class="btn accent sc-start" hidden>開始錄這一場</button>
+      <button type="button" class="btn accent sc-start" disabled>開始錄這一場</button>
       <button type="button" class="btn stop sc-stop" hidden>停止這一場</button>
       <span class="sc-timer mono" hidden>00:00</span>
     </div>
+    <p class="sc-guide"></p>
     <div class="checks sc-checks"></div>
     <div class="sc-gauges" hidden>
       <div class="sc-g"><span class="sc-gl">畫面</span><span class="sc-gv sc-fps">–</span></div>
@@ -310,6 +332,7 @@ function buildSlotCard(slot) {
   u.stop = card.querySelector('.sc-stop');
   u.timer = card.querySelector('.sc-timer');
   u.result = card.querySelector('.sc-result');
+  u.guide = card.querySelector('.sc-guide');
 
   u.name.value = slot.name.startsWith('會議 ') ? '' : slot.name;
   u.name.oninput = () => { slot.name = u.name.value.trim() || `會議 ${slot.id}`; slot.named = !!u.name.value.trim(); };
@@ -384,12 +407,24 @@ function renderSlot(slot) {
   u.pick.hidden = busy || slot.state === 'done';
   u.pick.disabled = slot.state === 'acquiring' || slot.state === 'checking';
   u.pick.classList.toggle('accent', slot.state === 'empty' || slot.state === 'failed');   // 沒通過時，該按的就是「重新選擇」   // 只切換，不能覆寫整個 class（會把 sc-pick 洗掉）
-  // 選過分頁之後，開始鈕一直留在原位：沒通過時變灰、寫明原因，不要整顆消失讓人找不到
-  u.start.hidden = !slot.stream || busy || slot.state === 'done';
+  // 開始鈕從頭到尾都在原位（2026-10-06 使用者找不到開始鈕：以前選分頁之前它是藏起來的）。
+  // 還不能按時是灰色虛線框，下面那行字講下一步要做什麼。
+  u.start.hidden = busy || slot.state === 'done';
   u.start.disabled = slot.state !== 'ready';
-  u.start.textContent = slot.state === 'ready' ? '開始錄這一場'
-    : slot.state === 'failed' ? '還不能開始：先修好下面打 ✕ 的項目'
-    : '檢查中…';
+  u.start.textContent = '開始錄這一場';
+  const guide = {
+    empty: '下一步：按「選擇這場的分頁」，選這場會議的分頁。選好、檢查通過之後，「開始錄這一場」就能按。',
+    acquiring: '請在瀏覽器跳出的分享視窗裡，點這場會議的分頁，再按「分享」。',
+    checking: '檢查中，約 7 秒…',
+    failed: '還不能開始：看下面打 ✕ 的項目，照提示修好後按「重新選擇」。',
+    ready: '準備好了。會議開始時按「開始錄這一場」。',
+    recording: '錄製中。要結束就按「停止這一場」；會議分頁關掉也會自動停止並存檔。',
+    finishing: '收檔與驗證中…',
+    done: '',
+  }[slot.state] || '';
+  u.guide.textContent = guide;
+  u.guide.hidden = !guide;
+  u.guide.dataset.state = slot.state;
   u.stop.hidden = slot.state !== 'recording';
   u.stop.disabled = false;
   u.timer.hidden = !busy;

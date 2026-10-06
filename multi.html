@@ -67,17 +67,6 @@
     分頁擷取拿到的聲音只有那個分頁的，不會跟其他場混在一起。
   </p>
 
-
-  <div class="callout warnish">
-    <h3>用之前先知道三件事</h3>
-    <p><strong>會議必須用網頁版參加。</strong>Zoom、Webex 的桌面程式沒辦法單獨抓聲音，
-       它們的聲音只存在於整台電腦的混音裡，多場會糊在一起。</p>
-    <p><strong>選分頁時，底部的「分享分頁音訊」開關要是開的（預設就是開的，不要關掉）。</strong>關掉就只有畫面沒聲音，
-       下一步會擋住不讓你開始。</p>
-    <p><strong>這一版預設不錄麥克風。</strong>你的麥克風會同時收到所有場次的喇叭聲，
-       混進去只會讓每一軌都變髒。建議戴耳機。</p>
-  </div>
-
   <!-- 救援：當機、關頁之後留在瀏覽器暫存裡的檔案 -->
   <section class="panel flagged" id="recoveryCard" hidden>
     <div class="panel-head">
@@ -88,8 +77,100 @@
     <div id="recoveryList" class="rows"></div>
   </section>
 
-  <!-- 教學 -->
-  <section class="panel" id="howtoCard">
+  <section class="panel fold-panel" id="setupCard">
+   <details class="fold" id="setupFold">
+    <summary>
+      <span class="fold-title">共用設定</span>
+      <span class="fold-sum" id="setupSummary"></span>
+      <span class="fold-more">更改</span>
+    </summary>
+    <div class="fold-body">
+
+    <div class="field">
+      <span class="field-label">錄完存到哪個資料夾</span>
+      <div class="row">
+        <button type="button" class="btn accent" id="btnUseSaved" hidden>繼續用「<span id="savedName"></span>」</button>
+        <button type="button" class="btn" id="btnPickDir">選擇資料夾</button>
+        <span class="val" id="dirLabel">尚未選擇</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label for="qualitySelect">影像畫質</label>
+        <select id="qualitySelect"></select>
+      </div>
+      <div class="field">
+        <label for="expectMinutes">預計會議長度（分鐘）</label>
+        <input type="number" id="expectMinutes" value="90" min="5" max="600" step="5">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="check" for="optVideo"><input type="checkbox" id="optVideo" checked><span>也錄影像（關掉就只留聲音，容量和 CPU 都省很多）</span></label>
+      <label class="check" for="optAlarm"><input type="checkbox" id="optAlarm" checked><span>出問題時發出提示音</span></label>
+      <label class="check" for="optNotify"><input type="checkbox" id="optNotify" checked><span>出問題時跳桌面通知</span></label>
+    </div>
+
+    <div class="field">
+      <span class="field-label">會議結束時自動停止並存檔</span>
+      <p class="hint">某一場的會議分頁被關掉、或按了「停止共用」：那一場 3 秒後自動停止並存檔，其他場照常錄（一律開啟）。</p>
+      <label class="check" for="optAutoQuiet"><input type="checkbox" id="optAutoQuiet" checked><span>會議結束了但分頁還開著：某一場連續 <input type="number" id="quietMin" value="10" min="3" max="120" step="1"> 分鐘完全沒有聲音，就判定那場結束，自動停止並存檔</span></label>
+    </div>
+
+    <div class="budget" id="budget"></div>
+    </div>
+   </details>
+  </section>
+
+  <!-- 場次 -->
+  <section class="panel" id="slotsCard">
+    <div class="panel-head">
+      <span class="eyebrow">場次</span>
+      <h2>每一場照三步做</h2>
+    </div>
+    <ol class="flow3">
+      <li><b>1</b><span>按「選擇這場的分頁」<br><i>選這場會議的分頁</i></span></li>
+      <li><b>2</b><span>等檢查通過<br><i>約 7 秒，變成「準備好了」</i></span></li>
+      <li><b>3</b><span>按「開始錄這一場」<br><i>會議開始時再按就好</i></span></li>
+    </ol>
+    <div id="slotList" class="slots"></div>
+    <p class="note plan-note" id="planNote"></p>
+    <div class="row">
+      <button type="button" class="btn" id="btnAddSlot">＋ 加一場</button>
+      <span class="note" id="slotHint">先加一場，然後選它要錄哪個分頁。</span>
+    </div>
+    <div class="row">
+      <button type="button" class="btn accent lg" id="btnStartAll" disabled>開始錄製全部</button>
+    </div>
+  </section>
+
+  <!-- 完成 -->
+  <section class="panel" id="doneCard" hidden>
+    <div class="panel-head">
+      <span class="eyebrow">完成</span>
+      <h2>驗證結果與實測數據</h2>
+    </div>
+    <div id="doneList"></div>
+    <div class="row">
+      <button type="button" class="btn accent" id="btnAgain">再錄一輪</button>
+    </div>
+  </section>
+
+  <!-- 教學（收合；第一次用再點開） -->
+  <section class="panel fold-panel" id="howtoCard">
+   <details class="fold" id="howtoFold">
+    <summary><span class="fold-title">第一次用？看教學</span><span class="fold-sum">一次錄四場的完整步驟、分享視窗怎麼選、最容易出錯的四件事</span><span class="fold-more">展開</span></summary>
+    <div class="fold-body">
+    <div class="callout warnish">
+    <h3>用之前先知道三件事</h3>
+    <p><strong>會議必須用網頁版參加。</strong>Zoom、Webex 的桌面程式沒辦法單獨抓聲音，
+       它們的聲音只存在於整台電腦的混音裡，多場會糊在一起。</p>
+    <p><strong>選分頁時，底部的「分享分頁音訊」開關要是開的（預設就是開的，不要關掉）。</strong>關掉就只有畫面沒聲音，
+       下一步會擋住不讓你開始。</p>
+    <p><strong>這一版預設不錄麥克風。</strong>你的麥克風會同時收到所有場次的喇叭聲，
+       混進去只會讓每一軌都變髒。建議戴耳機。</p>
+  </div>
     <div class="panel-head">
       <span class="eyebrow">教學</span>
       <h2>一次錄四場，照這個順序按</h2>
@@ -109,7 +190,7 @@
       </div>
       <div class="step">
         <svg class="ic"><use href="#i-headphones"/></svg>
-        <div><b>戴耳機</b><span>或在共用設定勾「錄的時候電腦不要把聲音放出來」。四場一起從喇叭放你也聽不清楚。</span></div>
+        <div><b>戴耳機</b><span>四場一起從喇叭放，你自己也聽不清楚。</span></div>
       </div>
       <div class="step">
         <svg class="ic"><use href="#i-power"/></svg>
@@ -122,7 +203,7 @@
     <div class="steps numbered">
       <div class="step"><span class="n">1</span>
         <svg class="ic"><use href="#i-folder"/></svg>
-        <div><b>選存檔資料夾</b><span>在上面的共用設定。選過一次就記住了。</span></div>
+        <div><b>選存檔資料夾</b><span>在上方的「共用設定」（按一下展開）。選過一次就記住了。</span></div>
       </div>
       <div class="step"><span class="n">2</span>
         <svg class="ic"><use href="#i-gauge"/></svg>
@@ -197,7 +278,7 @@
       </div>
       <div class="step"><span class="n">8</span>
         <svg class="ic"><use href="#i-rec"/></svg>
-        <div><b>按「開始錄製 4 場」</b><span>四格都「準備好了」之後才按得下去。</span></div>
+        <div><b>每一格按「開始錄這一場」</b><span>四格都「準備好了」時，下面也會出現「準備好的 4 場一起開始」，可以一次全開。</span></div>
       </div>
       <div class="step"><span class="n">9</span>
         <svg class="ic"><use href="#i-eye"/></svg>
@@ -221,78 +302,17 @@
 
     <p class="note">⚠ 四場同時錄我只用合成訊號測過（沒有掉格），<b>真實會議的上限還沒驗證</b>。
       第一次跑四場時，錄製中請留意每格的 fps 有沒有掉下來。</p>
+    </div>
+   </details>
   </section>
+
+
+
+
 
   <!-- 全域設定 -->
-  <section class="panel" id="setupCard">
-    <div class="panel-head">
-      <span class="eyebrow">共用設定</span>
-      <h2>所有場次一起套用</h2>
-    </div>
 
-    <div class="field">
-      <span class="field-label">錄完存到哪個資料夾</span>
-      <div class="row">
-        <button type="button" class="btn accent" id="btnUseSaved" hidden>繼續用「<span id="savedName"></span>」</button>
-        <button type="button" class="btn" id="btnPickDir">選擇資料夾</button>
-        <span class="val" id="dirLabel">尚未選擇</span>
-      </div>
-    </div>
 
-    <div class="grid-2">
-      <div class="field">
-        <label for="qualitySelect">影像畫質</label>
-        <select id="qualitySelect"></select>
-      </div>
-      <div class="field">
-        <label for="expectMinutes">預計會議長度（分鐘）</label>
-        <input type="number" id="expectMinutes" value="90" min="5" max="600" step="5">
-      </div>
-    </div>
-
-    <div class="field">
-      <label class="check" for="optVideo"><input type="checkbox" id="optVideo" checked><span>也錄影像（關掉就只留聲音，容量和 CPU 都省很多）</span></label>
-      <label class="check" for="optAlarm"><input type="checkbox" id="optAlarm" checked><span>出問題時發出提示音</span></label>
-      <label class="check" for="optNotify"><input type="checkbox" id="optNotify" checked><span>出問題時跳桌面通知</span></label>
-    </div>
-
-    <div class="field">
-      <span class="field-label">會議結束時自動停止並存檔</span>
-      <p class="hint">某一場的會議分頁被關掉、或按了「停止共用」：那一場 3 秒後自動停止並存檔，其他場照常錄（一律開啟）。</p>
-      <label class="check" for="optAutoQuiet"><input type="checkbox" id="optAutoQuiet" checked><span>會議結束了但分頁還開著：某一場連續 <input type="number" id="quietMin" value="10" min="3" max="120" step="1"> 分鐘完全沒有聲音，就判定那場結束，自動停止並存檔</span></label>
-    </div>
-
-    <div class="budget" id="budget"></div>
-  </section>
-
-  <!-- 場次 -->
-  <section class="panel" id="slotsCard">
-    <div class="panel-head">
-      <span class="eyebrow">場次</span>
-      <h2>一場一個分頁</h2>
-    </div>
-    <div id="slotList" class="slots"></div>
-    <p class="note plan-note" id="planNote"></p>
-    <div class="row">
-      <button type="button" class="btn" id="btnAddSlot">＋ 加一場</button>
-      <span class="note" id="slotHint">先加一場，然後選它要錄哪個分頁。</span>
-    </div>
-    <div class="row">
-      <button type="button" class="btn accent lg" id="btnStartAll" disabled>開始錄製全部</button>
-    </div>
-  </section>
-
-  <!-- 完成 -->
-  <section class="panel" id="doneCard" hidden>
-    <div class="panel-head">
-      <span class="eyebrow">完成</span>
-      <h2>驗證結果與實測數據</h2>
-    </div>
-    <div id="doneList"></div>
-    <div class="row">
-      <button type="button" class="btn accent" id="btnAgain">再錄一輪</button>
-    </div>
-  </section>
 
   <span class="eyebrow spaced">事件紀錄（所有場次）</span>
   <div class="log" id="logBox"></div>

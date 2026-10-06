@@ -9,6 +9,7 @@
  */
 import * as S from './storage.js';
 import { t, fmtWhen } from './i18n.js';
+const t2 = t;
 
 const MAN_KEY = 'meetingRecorder.manifest';
 
@@ -56,6 +57,27 @@ export async function renderRecovery(o) {
 
   o.card.hidden = false;
   o.list.innerHTML = '';
+  // 全部都「已匯出過」時不需要大大的救援卡：縮成一行，只留清除鈕（2026-10-06：它把場次區往下推了一大段）
+  const unexported = files.filter((f) => { const i = lookup(f.name); return !(i && i.s.exported); });
+  o.card.classList.toggle('compact', unexported.length === 0);
+  if (unexported.length === 0) {
+    const total = files.reduce((a, f) => a + f.size, 0);
+    const row = document.createElement('div');
+    row.className = 'row compact-row';
+    const t = document.createElement('span');
+    t.className = 'note';
+    t.textContent = `瀏覽器暫存裡還有 ${files.length} 個已經匯出過的錄影副本（共 ${fmtBytes(total)}）。確認資料夾裡的檔案能播之後可以清掉。`;
+    const b = document.createElement('button');
+    b.className = 'btn sm ghost'; b.type = 'button'; b.textContent = '清除這些暫存';
+    b.onclick = async () => {
+      if (!confirm(t2('只刪掉「已匯出過」的暫存副本。請先確認資料夾裡的檔案可以正常播放。'))) return;
+      for (const f of files) { try { await S.deleteStored(f.name); } catch (e) {} }
+      renderRecovery(o);
+    };
+    row.appendChild(t); row.appendChild(b);
+    o.list.appendChild(row);
+    return;
+  }
   let exportedCount = 0;
   for (const f of files) {
     const info = lookup(f.name);
