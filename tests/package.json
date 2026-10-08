@@ -1,0 +1,11 @@
+{
+  "name": "recordguard-tests",
+  "private": true,
+  "type": "module",
+  "description": "會議錄影守門員的瀏覽器自動測試（Playwright＋本機 Chrome）",
+  "dependencies": {
+    "playwright-core": "1.63.0",
+    "acorn": "^8.12.0",
+    "acorn-walk": "^8.3.0"
+  }
+}

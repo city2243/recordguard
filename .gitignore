@@ -12,3 +12,7 @@ dist/
 .owner_key.txt
 .test_token.txt
 付費流程盤點報告_20260930.*
+
+# 測試時暫時產生的會議分頁
+_realtab_test.html
+_t_*.html

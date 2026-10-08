@@ -241,17 +241,37 @@
 ## 程式結構
 
 ```
-index.html              介面
-app.css                 樣式
-js/app.js               主流程：設定 → 檢查 → 監看 → 驗證匯出
+artifact.html           單場版頁面的原始檔（build.py 產生 index.html，不要直接改 index.html）
+index.html              單場版（錄一場）
+multi.html              多場版（同時錄多場，每場一個分頁、各自開始／停止）
+pricing.html            方案頁（付費站才有金流）
+account.html            我的訂閱：查詢、取消、管理裝置
+terms.html              服務條款與隱私權政策
+app.css                 全站樣式
+
+js/app.js               單場主流程：設定 → 檢查 → 監看 → 驗證匯出
+js/multi.js             多場控制層：場次卡片、各自開始停止、自動收檔、匯出
+js/slot.js              一個「錄影槽」（一場會議）的完整生命週期，不碰畫面
 js/media.js             畫面/麥克風擷取、混音、畫格與音量量測
 js/checks.js            三道關卡：開錄前試錄驗證、錄製中深度健檢、錄完驗證
 js/storage.js           持久寫檔、救援、串流匯出
+js/recovery.js          多場版的「上次留下來的錄影檔」清單（與單場版共用 manifest）
+js/compat.js            偵測瀏覽器能不能錄，不能時在最上方說明（Firefox/Safari/手機）
+js/license.js           方案與授權碼（付費站才會鎖功能）
 js/opfs-worker.js       實際寫磁碟的 worker（sync access handle，寫完就 flush）
 js/ticker-worker.js     不受背景分頁節流的心跳
 js/i18n.js              中文／英文切換（顯示層翻譯、切換鈕、英文檔名）
 js/i18n-en.js           英文翻譯表（由 tools/build_i18n.py 產生，不要手改）
+
+worker/                 Cloudflare Worker：綠界金流、授權、對帳排程（D1 資料庫）
+i18n/                   翻譯來源（抽出的中文 units.json＋譯文 en.json）
+tools/                  影片小工具（.bat）、翻譯抽取與建置腳本
+tests/                  瀏覽器自動測試（見 tests/README.md）
+docs/                   使用說明 Word 檔
+wrangler.jsonc          Cloudflare 部署設定（金鑰放在 wrangler secrets，不在 repo 裡）
 ```
+
+部署：`python build.py` 產生 index.html → 把頁面、`app.css`、`js/` 複製到 `dist/` → `npx wrangler deploy`。
 
 ### 三個踩過的坑（改動前先看這裡）
 
